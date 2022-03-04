@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Font = Aspose.Cells.Font;
 
 namespace ExcelUtilities
 {
@@ -278,6 +279,314 @@ namespace ExcelUtilities
       Worksheet worksheet = null;
       worksheet = workbook.Worksheets.Add(worksheetName);
       worksheet.Name = worksheetName;
+      return workbook;
+    }
+
+    /// <summary>
+    /// Get a style from a cell.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">the position of the worksheet. The default value is zero.</param>
+    /// <param name="rowNumber">The row number as an integer. The default value is zero.</param>
+    /// <param name="columnNumber">The column number as an integer. The default value is zero.</param>
+    /// <returns>the style of the cell designated by rowNumber and columnNumber</returns>
+    public static Style GetStyle(Workbook workbook, int worksheetPosition = 0, int rowNumber = 0, int columnNumber = 0)
+    {
+      //Create a Style object to fetch the Style of a Cell.
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Style style = worksheet.Cells[rowNumber, columnNumber].GetStyle();
+      return style;
+    }
+
+    /// <summary>
+    /// Set the font, the size and the color of a range of cells.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet. The default value is zero.</param>
+    /// <param name="styleRowNumber">The row number to get the style from. The default value is zero.</param>
+    /// <param name="styleColumnNumber">The column number to get the style from. The default value is zero.</param>
+    /// <param name="startingRow">The starting row number to apply the style. The default value is zero.</param>
+    /// <param name="endingRow">The ending row number to apply the style. The default value is zero.</param>
+    /// <param name="startingColumn">The starting column number to apply the style. The default value is zero.</param>
+    /// <param name="endingColumn">The ending column number to apply the style. The default value is zero.</param>
+    /// <param name="size">The size of the font. The default value is 11.</param>
+    /// <param name="color">The color of the font. The default value is Black.</param>
+    /// <param name="isBold">Is it in bold? The default value is false.</param>
+    /// <param name="isItalic">Is it in italic? The default value is false.</param>
+    /// <param name="fontName">The name of the font e.g. "Calibri" or "Times New Roman". The default value is Calibri.</param>
+    /// <returns>A workbook with the requested style applied.</returns>
+    public static Workbook SetFontSizeAndColor(Workbook workbook, int worksheetPosition = 0, int styleRowNumber = 0, int styleColumnNumber = 0, int startingRow = 0, int endingRow = 0, int startingColumn = 0, int endingColumn = 0, int size = 11, string color = "Black", bool isBold = false, bool isItalic = false, string fontName = "Calibri")
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+
+      //Create a Style object to fetch the Style of a Cell.
+      Style style = worksheet.Cells[styleRowNumber, styleColumnNumber].GetStyle();
+
+      //Create a Font object
+      Font font = style.Font;
+
+      //Set the name.
+      font.Name = fontName;// examples: "Calibri" or "Times New Roman"
+
+      //Set the font size.
+      font.Size = size;
+
+      //Set the font color
+      if (color == "Black")
+      {
+        font.Color = Color.Black;
+      }
+      else
+      {
+        font.Color = Color.Black; // add other colors if needed
+      }
+
+      font.IsBold = isBold;
+      font.IsItalic = isItalic;
+      style.ForegroundColor = Color.White;
+      style.Pattern = BackgroundType.Solid;
+
+      for (int i = startingRow; i <= endingRow; i++)
+      {
+        for (int j = startingColumn; j <= endingColumn; j++)
+        {
+          cells[styleRowNumber + i, styleColumnNumber + j].SetStyle(style);
+        }
+      }
+
+      return workbook;
+    }
+
+    /// <summary>
+    /// Center the text of one or several cells.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="styleRowNumber">The number of the row to get the style.</param>
+    /// <param name="styleColumnNumber">The number of the column to get the style.</param>
+    /// <param name="worksheetPosition">The position of the worksheet starting with zero.</param>
+    /// <param name="startingColumn">The column number to start from.</param>
+    /// <param name="endingColumn">The column number to end.</param>
+    /// <param name="startingRow">The row number to start from.</param>
+    /// <param name="endingRow">The row number to end.</param>
+    /// <param name="textAlignmentType">The type of the text alignment like Left, Right, Center, etc.</param>
+    /// <returns>A workbook with text aligned.</returns>
+    public static Workbook CenterColumn(Workbook workbook, int styleRowNumber = 0, int styleColumnNumber = 0, int worksheetPosition = 0, int startingColumn = 0, int endingColumn = 0, int startingRow = 0, int endingRow = 0, TextAlignmentType textAlignmentType = TextAlignmentType.Left)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+
+      //Create a Style object to fetch the Style of a Cell.
+      Style style = worksheet.Cells[styleRowNumber, styleColumnNumber].GetStyle();
+      style.HorizontalAlignment = textAlignmentType;
+
+      for (int i = startingRow; i <= endingRow; i++)
+      {
+        for (int j = startingColumn; j <= endingColumn; j++)
+        {
+          cells[i, j].SetStyle(style);
+        }
+      }
+
+      return workbook;
+    }
+
+    /// <summary>
+    /// Replace text on a range of cells.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="startingColumn">The column number to start from.</param>
+    /// <param name="endingColumn">The ending column number.</param>
+    /// <param name="startingRow">The row number to start from.</param>
+    /// <param name="endingRow">The ending row number.</param>
+    /// <param name="oldText">The text to be replaced.</param>
+    /// <param name="newText">The new text to replace the old text.</param>
+    /// <returns>A workbook with text replaced.</returns>
+    private static Workbook ReplaceText(Workbook workbook, int worksheetPosition, int startingColumn = 0, int endingColumn = 0, int startingRow = 0, int endingRow = 0, string oldText = "", string newText = "")
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+      for (int i = startingRow; i <= endingRow; i++)
+      {
+        for (int j = startingColumn; j <= endingColumn; j++)
+        {
+          if (cells[i, j].Value != null && cells[i, j].Value.ToString().ToUpper() == oldText.ToUpper())
+          {
+            cells[i, j].PutValue(newText);
+          }
+        }
+      }
+
+      return workbook;
+    }
+
+    /// <summary>
+    /// Insert one or several rows.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="rowNumber">The row number where a row will be inserted.</param>
+    /// <param name="numberOfRowtoBeAdded">The number of row to be added. The default value is one.</param>
+    /// <returns>A workbook with row added.</returns>
+    private static Workbook InsertRow(Workbook workbook, int worksheetPosition, int rowNumber = 0, int numberOfRowtoBeAdded = 1)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      worksheet.Cells.InsertRows(rowNumber, numberOfRowtoBeAdded);
+      return workbook;
+    }
+
+    /// <summary>
+    /// Copy the format of one cell to another one or a range of cells.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="cellRowtoCopyFrom">The row number of the cell to copy the format from.</param>
+    /// <param name="cellColumntoCopyFrom">The column number of the cell to copy the format from.</param>
+    /// <param name="startingColumn">The column number to start from.</param>
+    /// <param name="endingColumn">The ending column number.</param>
+    /// <param name="startingRow">The row number to start from.</param>
+    /// <param name="endingRow">The ending row number.</param>
+    /// <returns>A workbook with a new format applied on one cell or several cells.</returns>
+    public static Workbook CopyCellFormat(Workbook workbook, int worksheetPosition, int cellColumntoCopyFrom, int cellRowtoCopyFrom, int startingColumn = 0, int endingColumn = 0, int startingRow = 0, int endingRow = 0)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+
+      //Create a Style object to fetch the Style of a Cell.
+      Style style = worksheet.Cells[cellRowtoCopyFrom, cellColumntoCopyFrom].GetStyle();
+
+      for (int i = startingRow; i <= endingRow; i++)
+      {
+        for (int j = startingColumn; j <= endingColumn; j++)
+        {
+          cells[i, j].SetStyle(style);
+        }
+      }
+
+      return workbook;
+    }
+
+    /// <summary>
+    /// Write text to one cell.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="text">The text to be inserted.</param>
+    /// <param name="cellRow">The row number of the cell to be written.</param>
+    /// <param name="cellColumn">The column number of the cell to be written.</param>
+    /// <returns>A workbook with the text insreted in a cell.</returns>
+    public static Workbook WriteTextToCell(Workbook workbook, int worksheetPosition, string text, int cellRow = 0, int cellColumn = 0)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+      cells[cellRow, cellColumn].PutValue(text);
+      return workbook;
+    }
+
+    /// <summary>
+    /// Set the size of a row.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="rowNumber">The row number to change its size.</param>
+    /// <param name="newRowSize">The new size of the row.</param>
+    /// <returns>A workbook with a new row size.</returns>
+    public static Workbook SetRowSize(Workbook workbook, int worksheetPosition, int rowNumber = 0, double newRowSize = 15)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      workbook.Worksheets[worksheetPosition].Cells.Rows[rowNumber].Height = newRowSize;
+      return workbook;
+    }
+
+    /// <summary>
+    /// Center the text horizontally and vertically.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet starting with zero.</param>
+    /// <param name="styleRowNumber">The number of the row to get the style.</param>
+    /// <param name="styleColumnNumber">The number of the column to get the style.</param>
+    /// <param name="startingColumn">The column number to start from.</param>
+    /// <param name="endingColumn">The column number to end.</param>
+    /// <param name="startingRow">The row number to start from.</param>
+    /// <param name="endingRow">The row number to end.</param>
+    /// <param name="horizontalAlignment">The type of the text alignment horizontally like Left, Right, Center, etc.</param>
+    /// <param name="verticalAlignment">The type of the text alignment vertically like Left, Right, Center, etc.</param>
+    /// <returns>A workbook with text aligned.</returns>
+    public static Workbook SetTextHorizontalAndVertical(Workbook workbook, int worksheetPosition, int styleRowNumber = 0, int styleColumnNumber = 0, int startingColumn = 0, int endingColumn = 0, int startingRow = 0, int endingRow = 0, TextAlignmentType horizontalAlignment = TextAlignmentType.Left, TextAlignmentType verticalAlignment = TextAlignmentType.Center)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+      Style style = worksheet.Cells[styleRowNumber, styleColumnNumber].GetStyle();
+      style.HorizontalAlignment = horizontalAlignment;
+      style.VerticalAlignment = verticalAlignment;
+
+      for (int i = startingRow; i <= endingRow; i++)
+      {
+        for (int j = startingColumn; j <= endingColumn; j++)
+        {
+          cells[i, j].SetStyle(style);
+        }
+      }
+
+      return workbook;
+    }
+
+    /// <summary>
+    /// Set the background color.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet. The default value is zero.</param>
+    /// <param name="styleRowNumber">The row number to get the style from. The default value is zero.</param>
+    /// <param name="styleColumnNumber">The column number to get the style from. The default value is zero.</param>
+    /// <param name="startingRow">The starting row number to apply the style. The default value is zero.</param>
+    /// <param name="endingRow">The ending row number to apply the style. The default value is zero.</param>
+    /// <param name="startingColumn">The starting column number to apply the style. The default value is zero.</param>
+    /// <param name="endingColumn">The ending column number to apply the style. The default value is zero.</param>
+    /// <param name="color">The color of the background.</param>
+    /// <returns>A workbook with the requested style applied.</returns>
+    public static Workbook SetBackgroundColor(Workbook workbook, Color color, int worksheetPosition = 0, int styleRowNumber = 0, int styleColumnNumber = 0, int startingRow = 0, int endingRow = 0, int startingColumn = 0, int endingColumn = 0)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+      Style style = worksheet.Cells[styleRowNumber, styleColumnNumber].GetStyle();
+      style.ForegroundColor = color;
+      style.Pattern = BackgroundType.Solid;
+
+      for (int i = startingRow; i <= endingRow; i++)
+      {
+        for (int j = startingColumn; j <= endingColumn; j++)
+        {
+          cells[i, j].SetStyle(style);
+        }
+      }
+
+      return workbook;
+    }
+
+    /// <summary>
+    /// Add a new worksheet at the end of the workbook.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetName">The name of the new worksheet to be inserted.</param>
+    /// <returns>A workbook with the new inserted tab.</returns>
+    public static Workbook AddTab(Workbook workbook, string worksheetName)
+    {
+      workbook.Worksheets.Add(worksheetName);
+      return workbook;
+    }
+
+    /// <summary>
+    /// Insert a new worksheet before another one.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetName">The name of the new worksheet to be inserted.</param>
+    /// <param name="tabBeforeNumber">The index to insert a new tab.</param>
+    /// <returns>A workbook with the new inserted tab.</returns>
+    public static Workbook InsertTab(Workbook workbook, string worksheetName, int tabBeforeNumber = 0)
+    {
+      var newWorksheet = workbook.Worksheets.Insert(tabBeforeNumber, SheetType.Worksheet);
+      newWorksheet.Name = worksheetName;
       return workbook;
     }
   }
