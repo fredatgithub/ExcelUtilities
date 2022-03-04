@@ -31,8 +31,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Aspose.Cells, Version=22.2.0.0, Culture=neutral, PublicKeyToken=716fcc553a201e56, processorArchitecture=MSIL">
+      <HintPath>..\packages\Aspose.Cells.22.2.0\lib\net40\Aspose.Cells.dll</HintPath>
+    </Reference>
+    <Reference Include="GrEmit, Version=3.4.10.0, Culture=neutral, PublicKeyToken=93c84d6089a381c7, processorArchitecture=MSIL">
+      <HintPath>..\packages\GrEmit.3.4.10\lib\net45\GrEmit.dll</HintPath>
+    </Reference>
+    <Reference Include="GroBuf, Version=1.8.1.0, Culture=neutral, PublicKeyToken=4c1d42c5fb877224, processorArchitecture=MSIL">
+      <HintPath>..\packages\GroBuf.1.8.1\lib\net45\GroBuf.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Reflection, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Reflection.2.0.0\lib\net40\Mono.Reflection.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,8 +55,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExcelMethods.cs" />
+    <Compile Include="ExportFormat.cs" />
+    <Compile Include="ImportHelper.cs" />
+    <Compile Include="ObjectCompressionHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WordMethods.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
