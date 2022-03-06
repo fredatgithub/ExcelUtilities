@@ -13,6 +13,7 @@ namespace ExcelUtilities
     /// Standard Blue color defined as a standard for all the worksheets.
     /// </summary>
     private static readonly Color standardBlue = Color.FromArgb(0, 45, 128);
+    private static readonly Color? defaultBlue;
 
     /// <summary>
     /// Convert an Excel workbook to an array of bytes.
@@ -587,6 +588,140 @@ namespace ExcelUtilities
     {
       var newWorksheet = workbook.Worksheets.Insert(tabBeforeNumber, SheetType.Worksheet);
       newWorksheet.Name = worksheetName;
+      return workbook;
+    }
+
+    public static string RemoveForbiddencharacters(string projectName)
+    {
+      string result = string.Empty;
+      result = projectName.Remove(' ');
+      return result;
+    }
+
+    /// <summary>
+    /// Remove all Windows forbidden characters for a Windows path.
+    /// </summary>
+    /// <param name="filename">The initial string to be processed.</param>
+    /// <returns>A string without Windows forbidden characters.</returns>
+    public static string RemoveWindowsForbiddenCharacters(string filename)
+    {
+      string result = filename;
+      // Remove all characters which are forbidden for a Windows path
+      string[] forbiddenWindowsFilenameCharacters = { "\\", "/", "*", "?", "\"", "<", ">", "|" };
+      foreach (var item in forbiddenWindowsFilenameCharacters)
+      {
+        result = result.Replace(item, string.Empty);
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Build a new Excel File and fill it with the structure of a project.
+    /// </summary>
+    /// <param name="structure">The list of nodes of the structure to be filled.</param>
+    /// <param name="sheetName">The name of the worksheet.</param>
+    /// <returns>An array of byte with the Excel file.</returns>
+    public static byte[] BuildExcelFile(List<StructureExportFormat> structure, string sheetName)
+    {
+      Dictionary<int, string> dicoPathNode = new Dictionary<int, string>();
+      foreach (var item in structure)
+      {
+        dicoPathNode.Add(item.Header1, item.Header2);
+      }
+
+      Workbook workbook = CreateWorkbook(sheetName);
+      try
+      {
+        List<string> headers = new List<string>();
+        headers.Add("header1");
+        headers.Add("header2");
+        headers.Add("header2");
+
+        // Fill the header of the file
+        workbook = AddHeader(workbook, headers);
+
+        // Set style for the header
+        //todo fix following line
+        //workbook = SetStyle(workbook, defaultBlue, Color.White, 12, "Calibri", 0, true, 0, 2, 0, 0, BackgroundType.Solid);
+
+        // import data
+        var headersToImport = new string[] { "header1", "header2", "header2" };
+        workbook = ImportData(workbook, structure, headersToImport, 0);
+        workbook = ReplaceTextWithDictionary(workbook, 0, 1, 2, structure.Count, 2, dicoPathNode);
+        workbook = AutoFitColumns(workbook, 0);
+        workbook = AddTab(workbook, "Glossary");
+
+      }
+      catch (Exception exception)
+      {
+        throw new Exception("Error while parsing data to export", exception);
+      }
+
+      return ConvertSpreadSheetToByteArray(workbook, sheetName);
+    }
+
+    private static byte[] ConvertSpreadSheetToByteArray(Workbook workbook, string sheetName)
+    {
+      throw new NotImplementedException();
+    }
+
+    public static Workbook ReplaceTextWithDictionary(Workbook workbook, int worksheetPosition, int startingRow, int startingColumn, int endingRow, int endingColumn, Dictionary<int, string> dicoPathNode)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+      for (int i = startingRow; i <= endingRow; i++)
+      {
+        for (int j = startingColumn; j <= endingColumn; j++)
+        {
+          string oldCellValue = string.Empty;
+          if (cells[i, j].Value == null)
+          {
+            oldCellValue = string.Empty;
+          }
+          else
+          {
+            oldCellValue = cells[i, j].Value.ToString();
+          }
+
+          foreach (var item in dicoPathNode.Reverse())
+          {
+            oldCellValue = oldCellValue.Replace(item.Key.ToString(), item.Value);
+            oldCellValue = oldCellValue.Replace("/", " | ");
+          }
+
+          cells[i, j].PutValue(oldCellValue.Trim().Trim('|').Trim());
+        }
+      }
+
+      // delete VIRTUALROOTNODE line
+      cells.DeleteRow(dicoPathNode.Count);
+      return workbook;
+    }
+
+    /// <summary>
+    /// Import data to a workbook according to the "Structure Export Format" class.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="data">The data to be entered.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be modified.</param>
+    /// <returns>A workbook with imported data.</returns>
+    public static Workbook ImportData(Workbook workbook, List<StructureExportFormat> data, string[] headers, int worksheetPosition = 0)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+
+      cells.ImportCustomObjects(
+            data.OrderBy(f => f.Header2).ToList(),
+            headers,
+            false,
+            1,
+            0,
+            data.Count,
+            true,
+            "dd/mm/yyyy",
+            false);
+
       return workbook;
     }
   }

@@ -59,6 +59,7 @@
     <Compile Include="ImportHelper.cs" />
     <Compile Include="ObjectCompressionHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StructureExportFormat.cs" />
     <Compile Include="WordMethods.cs" />
   </ItemGroup>
   <ItemGroup>
