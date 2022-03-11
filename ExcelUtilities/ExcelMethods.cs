@@ -694,8 +694,6 @@ namespace ExcelUtilities
         }
       }
 
-      // delete VIRTUALROOTNODE line
-      cells.DeleteRow(dicoPathNode.Count);
       return workbook;
     }
 
@@ -722,6 +720,134 @@ namespace ExcelUtilities
             "dd/mm/yyyy",
             false);
 
+      return workbook;
+    }
+
+    /// <summary>
+    /// Insert one or several columns.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="columnNumber">The column number where a column will be inserted.</param>
+    /// <param name="numberOfColumnstoBeAdded">The number of column to be added. The default value is one.</param>
+    /// <returns>A workbook with one or several columns added.</returns>
+    private static Workbook InsertColumns(Workbook workbook, int worksheetPosition, int columnNumber = 0, int numberOfColumnstoBeAdded = 1)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      worksheet.Cells.InsertColumns(columnNumber, numberOfColumnstoBeAdded);
+      return workbook;
+    }
+
+    /// <summary>
+    /// Merge several columns into one.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="startingRow">The row number to start merging from.</param>
+    /// <param name="endingRow">The last cell row to be merged.</param>
+    /// <param name="startingColumn">The column number to start merging from.</param>
+    /// <param name="endingColumn">The last cell column to be merged.</param>
+    /// <returns>A workbook with one merged cell.</returns>
+    public static Workbook MergeCells(Workbook workbook, int worksheetPosition, int firstRow, int firstColumn, int totalRowNumber, int totalColumnNumber)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+      //Merge some Cells (C6:E7) = (5, 2, 2, 3) into a single C6 Cell, merge firstRow, firstColumn, totalRowNumber, totalColumnNumber.
+      cells.Merge(firstRow, firstColumn, totalRowNumber, totalColumnNumber);
+      return workbook;
+    }
+
+    /// <summary>
+    /// Set the size of a column.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="columnNumber">The column number to change its size.</param>
+    /// <param name="newColumnSize">The new size of the column.</param>
+    /// <returns>A workbook with a new column size.</returns>
+    public static Workbook SetColumnSize(Workbook workbook, int worksheetPosition, int columnNumber, double newColumnSize)
+    {
+      workbook.Worksheets[worksheetPosition].Cells.Columns[columnNumber].Width = newColumnSize;
+      return workbook;
+    }
+
+    /// <summary>
+    /// Get the column width of a worksheet from a workbook.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="columnNumber">The number of the column to get the width.</param>
+    /// <returns>A double number indicating the width of a column.</returns>
+    public static double GetColumnWidth(Workbook workbook, int worksheetPosition, int columnNumber)
+    {
+      return workbook.Worksheets[worksheetPosition].Cells.Columns[columnNumber].Width;
+    }
+
+    /// <summary>
+    /// Write an array of text to several cells horizontally.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be used.</param>
+    /// <param name="startingRow">The row number to start writing from.</param>
+    /// <param name="startingColumn">The column number to start writing from.</param>
+    /// <param name="headers">The array of text to be written.</param>
+    /// <returns>A workbook with several cells written horizontally.</returns>
+    public static Workbook WriteTextToSeveralCellsHorizontally(Workbook workbook, int worksheetPosition, int startingRow, int startingColumn, string[] headers)
+    {
+      Worksheet worksheet = workbook.Worksheets[worksheetPosition];
+      Cells cells = worksheet.Cells;
+      for (int i = 0; i < headers.Length; i++)
+      {
+        cells[startingRow, startingColumn + i].PutValue(headers[i]);
+      }
+
+      return workbook;
+    }
+
+    /// <summary>
+    /// Sort data in several cells inside a spreadsheet.
+    /// </summary>
+    /// <param name="workbook">The workbook to be used.</param>
+    /// <param name="worksheetPosition">The position of the worksheet to be modified.</param>
+    /// <param name="startingRow">The first row number to start sorting.</param>
+    /// <param name="endingRow">The last row number to stop sorting.</param>
+    /// <param name="startingColumn">The first column number to start sorting.</param>
+    /// <param name="endingColumn">The last column number to stop sorting.</param>
+    /// <returns>A workbook with sorted cells.</returns>
+    public static Workbook SortData(Workbook workbook, int worksheetPosition, int startingRow = 0, int endingRow = 0, int startingColumn = 0, int endingColumn = 0, SortOrder sortOrder = SortOrder.Ascending, bool havingSortKey2 = false, bool havingSortKey3 = false, int sortKey1ColumnNumber = 0, int sortKey2ColumnNumber = 1, int sortKey3ColumnNumber = 2)
+    {
+      //Get the workbook datasorter object.
+      DataSorter sorter = workbook.DataSorter;
+      //Set the first order for datasorter object.
+      sorter.Order1 = sortOrder;
+      //Define the first key.
+      sorter.Key1 = sortKey1ColumnNumber;
+      if (havingSortKey2)
+      {
+        //Set the second order for datasorter object.
+        sorter.Order2 = sortOrder;
+        //Define the second key.
+        sorter.Key2 = sortKey2ColumnNumber;
+      }
+
+      if (havingSortKey3)
+      {
+        sorter.Order3 = sortOrder;
+        sorter.Key3 = sortKey3ColumnNumber;
+      }
+
+      //Create a cells area (range).
+      CellArea cellArea = new CellArea();
+      //Specify the start row index.
+      cellArea.StartRow = startingRow;
+      //Specify the start column index.
+      cellArea.StartColumn = startingColumn;
+      //Specify the last row index.
+      cellArea.EndRow = endingRow;
+      //Specify the last column index.
+      cellArea.EndColumn = endingColumn;
+      //Sort data in the specified data range
+      sorter.Sort(workbook.Worksheets[worksheetPosition].Cells, cellArea);
       return workbook;
     }
   }
