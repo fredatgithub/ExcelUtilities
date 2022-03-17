@@ -837,18 +837,32 @@ namespace ExcelUtilities
       }
 
       //Create a cells area (range).
-      CellArea cellArea = new CellArea();
-      //Specify the start row index.
-      cellArea.StartRow = startingRow;
-      //Specify the start column index.
-      cellArea.StartColumn = startingColumn;
-      //Specify the last row index.
-      cellArea.EndRow = endingRow;
-      //Specify the last column index.
-      cellArea.EndColumn = endingColumn;
+      CellArea cellArea = new CellArea
+      {
+        //Specify the start row index.
+        StartRow = startingRow,
+        //Specify the start column index.
+        StartColumn = startingColumn,
+        //Specify the last row index.
+        EndRow = endingRow,
+        //Specify the last column index.
+        EndColumn = endingColumn
+      };
+
       //Sort data in the specified data range
       sorter.Sort(workbook.Worksheets[worksheetPosition].Cells, cellArea);
       return workbook;
+    }
+
+    /// <summary>
+    /// Load a CSV file into a workbook.
+    /// </summary>
+    /// <param name="csvFileName">The name of the CSV file.</param>
+    /// <returns>A workbook with the CSV file imported.</returns>
+    public static Workbook LoadCsvFile(string csvFileName)
+    {
+      LoadOptions loadOptions = new LoadOptions(LoadFormat.Csv);
+      return new Workbook(csvFileName, loadOptions);
     }
   }
 }
